@@ -1,0 +1,7 @@
+Feature,XGBoost,Random_Forest
+Seasonal Dummies,0.05,0.06
+Facility Type,0.08,0.1
+Oxygen Supply,0.12,0.13
+Staffing Ratio,0.18,0.22
+Outbreak Indicators,0.25,0.21
+Lagged Admissions,0.32,0.28

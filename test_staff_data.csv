@@ -1,0 +1,21 @@
+staff_id,full_name,category,position,department,contact_number,email
+STF001,Dr. Tendai Mukamuri,Doctor,Senior Physician,Cardiology,+263-77-123-4567,t.mukamuri@hospital.co.zw
+STF002,Nurse Chipo Madziva,Nurse,Head Nurse,Cardiology,+263-77-234-5678,c.madziva@hospital.co.zw
+STF003,Dr. Blessing Nyathi,Doctor,Consultant,Pulmonology,+263-77-345-6789,b.nyathi@hospital.co.zw
+STF004,Nurse Rutendo Chigumira,Nurse,Staff Nurse,Pulmonology,+263-77-456-7890,r.chigumira@hospital.co.zw
+STF005,Dr. Farai Moyo,Doctor,Specialist,Endocrinology,+263-77-567-8901,f.moyo@hospital.co.zw
+STF006,Technician Tafadzwa Sibanda,Technician,Lab Technician,Laboratory,+263-77-678-9012,t.sibanda@hospital.co.zw
+STF007,Dr. Nomsa Dube,Doctor,Surgeon,Surgery,+263-77-789-0123,n.dube@hospital.co.zw
+STF008,Nurse Precious Mutasa,Nurse,Theatre Nurse,Surgery,+263-77-890-1234,p.mutasa@hospital.co.zw
+STF009,Dr. Tinashe Mapfumo,Doctor,Neurologist,Neurology,+263-77-901-2345,t.mapfumo@hospital.co.zw
+STF010,Nurse Vimbai Chikwanha,Nurse,Ward Sister,Neurology,+263-77-012-3456,v.chikwanha@hospital.co.zw
+STF011,Dr. Simba Mhango,Doctor,Orthopedic Surgeon,Orthopedics,+263-77-123-4567,s.mhango@hospital.co.zw
+STF012,Physiotherapist Rudo Gumbo,Therapist,Senior Physiotherapist,Orthopedics,+263-77-234-5678,r.gumbo@hospital.co.zw
+STF013,Dr. Chiedza Makoni,Doctor,Gastroenterologist,Gastroenterology,+263-77-345-6789,c.makoni@hospital.co.zw
+STF014,Nurse Tatenda Zvobgo,Nurse,Staff Nurse,Gastroenterology,+263-77-456-7890,t.zvobgo@hospital.co.zw
+STF015,Dr. Kudzai Mandaza,Doctor,Obstetrician,Obstetrics,+263-77-567-8901,k.mandaza@hospital.co.zw
+STF016,Midwife Nyasha Chidziva,Midwife,Senior Midwife,Obstetrics,+263-77-678-9012,n.chidziva@hospital.co.zw
+STF017,Dr. Takudzwa Mpofu,Doctor,Urologist,Urology,+263-77-789-0123,t.mpofu@hospital.co.zw
+STF018,Nurse Fungai Ncube,Nurse,Staff Nurse,Urology,+263-77-890-1234,f.ncube@hospital.co.zw
+STF019,Dr. Anesu Chinyanga,Doctor,Psychiatrist,Psychiatry,+263-77-901-2345,a.chinyanga@hospital.co.zw
+STF020,Counselor Tsitsi Marowa,Counselor,Clinical Psychologist,Psychiatry,+263-77-012-3456,t.marowa@hospital.co.zw

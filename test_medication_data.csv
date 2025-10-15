@@ -1,0 +1,16 @@
+medication_name,quantity,category,reorder_level,expiry_date,batch_number
+Paracetamol,500,Analgesic,100,2025-12-31,PAR2025001
+Amoxicillin,250,Antibiotic,50,2025-11-30,AMX2025002
+Insulin,100,Diabetes,20,2025-10-15,INS2025003
+Aspirin,300,Cardiovascular,75,2025-09-20,ASP2025004
+Ibuprofen,400,Anti-inflammatory,80,2025-08-25,IBU2025005
+Metformin,200,Diabetes,40,2025-07-30,MET2025006
+Lisinopril,150,Hypertension,30,2025-06-15,LIS2025007
+Omeprazole,180,Gastric,35,2025-05-20,OME2025008
+Simvastatin,120,Cholesterol,25,2025-04-10,SIM2025009
+Warfarin,80,Anticoagulant,15,2025-03-05,WAR2025010
+Morphine,50,Pain Management,10,2025-02-28,MOR2025011
+Prednisone,90,Steroid,20,2025-01-31,PRE2025012
+Furosemide,110,Diuretic,25,2025-12-15,FUR2025013
+Digoxin,60,Cardiac,12,2025-11-10,DIG2025014
+Levothyroxine,140,Thyroid,30,2025-10-05,LEV2025015

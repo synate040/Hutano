@@ -1,0 +1,6 @@
+patient_id,age,gender,admission_date,diagnosis,department,discharge_date,is_emergency
+PAT-001,45,Male,2024-01-15,Malaria,General Ward,2024-01-20,True
+PAT-002,32,Female,2024-01-16,Pneumonia,ICU,2024-01-22,True
+PAT-003,28,Female,2024-01-17,Delivery,Maternity,2024-01-19,False
+PAT-004,65,Male,2024-01-18,Diabetes,General Ward,2024-01-25,False
+PAT-005,12,Male,2024-01-19,Appendicitis,Pediatric,2024-01-23,True

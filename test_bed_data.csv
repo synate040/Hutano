@@ -1,0 +1,26 @@
+bed_number,bed_type,department,status
+ICU-001,ICU,Intensive Care,occupied
+ICU-002,ICU,Intensive Care,available
+ICU-003,ICU,Intensive Care,occupied
+ICU-004,ICU,Intensive Care,maintenance
+GEN-001,General,General Medicine,occupied
+GEN-002,General,General Medicine,available
+GEN-003,General,General Medicine,occupied
+GEN-004,General,General Medicine,available
+GEN-005,General,General Medicine,occupied
+CARD-001,Cardiac,Cardiology,occupied
+CARD-002,Cardiac,Cardiology,available
+CARD-003,Cardiac,Cardiology,occupied
+SURG-001,Surgical,Surgery,occupied
+SURG-002,Surgical,Surgery,available
+SURG-003,Surgical,Surgery,occupied
+SURG-004,Surgical,Surgery,maintenance
+PEDI-001,Pediatric,Pediatrics,occupied
+PEDI-002,Pediatric,Pediatrics,available
+PEDI-003,Pediatric,Pediatrics,occupied
+MAT-001,Maternity,Obstetrics,occupied
+MAT-002,Maternity,Obstetrics,available
+MAT-003,Maternity,Obstetrics,occupied
+EMER-001,Emergency,Emergency,occupied
+EMER-002,Emergency,Emergency,available
+EMER-003,Emergency,Emergency,occupied

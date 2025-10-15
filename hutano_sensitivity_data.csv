@@ -1,0 +1,10 @@
+Feature,MAE_Increase,Importance_Rank
+Bed Occupancy,0.048,1
+ICU Admissions,0.042,2
+Length of Stay,0.038,3
+Admissions,0.032,4
+Oxygen Supply,0.026,5
+Bed Capacity,0.022,6
+Bed Type,0.018,7
+Disease Type,0.012,8
+Malaria Cases,0.008,9

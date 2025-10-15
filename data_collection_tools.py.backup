@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""
+HUTANO Data Collection Tools
+Advanced tools for gathering and processing healthcare data
+"""
+
+import requests
+import pandas as pd
+import json
+import time
+from datetime import datetime, timedelta
+import sqlite3
+import os
+
+class HUTANODataCollector:
+    """Advanced data collection tools for HUTANO system"""
+    
+    def __init__(self):
+        self.base_url = "https://ghoapi.azureedge.net/api/"
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'HUTANO-Healthcare-System/1.0'
+        })
+    
+    def fetch_who_data(self, indicator_code, country_code='ZWE'):
+        """Fetch WHO Global Health Observatory data for Zimbabwe"""
+        
+        print(f"🌍 Fetching WHO data for indicator: {indicator_code}")
+        
+        try:
+            url = f"{self.base_url}{indicator_code}"
+            params = {
+                'SpatialDim': country_code,
+                '$format': 'json'
+            }
+            
+            response = self.session.get(url, params=params, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if 'value' in data:
+                df = pd.DataFrame(data['value'])
+                print(f"✅ Successfully fetched {len(df)} records")
+                return df
+            else:
+                print("⚠️ No data found for this indicator")
+                return pd.DataFrame()
+                
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error fetching WHO data: {e}")
+            return pd.DataFrame()
+    
+    def get_zimbabwe_health_indicators(self):
+        """Get key health indicators for Zimbabwe"""
+        
+        indicators = {
+            'WHOSIS_000001': 'Life expectancy at birth',
+            'WHOSIS_000015': 'Infant mortality rate',
+            'MDG_0000000026': 'Malaria incidence',
+            'HIV_0000000026': 'HIV prevalence',
+            'TB_c_newinc': 'TB incidence',
+            'WHS4_544': 'Hospital beds per 10,000 population',
+            'HWF_0001': 'Physicians per 10,000 population',
+            'HWF_0002': 'Nurses per 10,000 population'
+        }
+        
+        print("🇿🇼 Collecting Zimbabwe Health Data")
+        print("=" * 50)
+        
+        all_data = {}
+        
+        for code, description in indicators.items():
+            print(f"\nFetching: {description}")
+            df = self.fetch_who_data(code)
+            
+            if not df.empty:
+                all_data[code] = {
+                    'description': description,
+                    'data': df
+                }
+                time.sleep(1)  # Be respectful to the API
+        
+        return all_data
+    
+    def create_synthetic_hospital_data(self, hospital_name, start_date='2023-01-01', days=365):
+        """Create realistic synthetic hospital data"""
+        
+        print(f"🏥 Generating synthetic data for {hospital_name}")
+        
+        dates = pd.date_range(start_date, periods=days, freq='D')
+        
+        # Base admission rates (varies by hospital size)
+        hospital_sizes = {
+            'Parirenyatwa Group of Hospitals': 45,
+            'Sally Mugabe Central Hospital': 32,
+            'Mpilo Central Hospital': 28,
+            'Chitungwiza Central Hospital': 22,
+            'United Bulawayo Hospitals': 18,
+            'Gweru Provincial Hospital': 15,
+            'Bindura Provincial Hospital': 12,
+            'Karanda Mission Hospital': 10
+        }
+        
+        base_rate = hospital_sizes.get(hospital_name, 15)
+        
+        # Generate realistic patterns
+        admissions = []
+        for i, date in enumerate(dates):
+            # Weekly pattern (higher on weekends)
+            weekly_factor = 1.2 if date.weekday() >= 5 else 1.0
+            
+            # Seasonal pattern (higher in rainy season)
+            seasonal_factor = 1.3 if date.month in [11, 12, 1, 2, 3] else 1.0
+            
+            # Random variation
+            random_factor = np.random.normal(1.0, 0.2)
+            
+            daily_admissions = max(1, int(base_rate * weekly_factor * seasonal_factor * random_factor))
+            admissions.append(daily_admissions)
+        
+        # Create comprehensive dataset
+        hospital_data = pd.DataFrame({
+            'date': dates,
+            'hospital_name': hospital_name,
+            'daily_admissions': admissions,
+            'bed_occupancy': np.random.uniform(0.6, 0.9, days),
+            'staff_on_duty': np.random.randint(20, 80, days),
+            'emergency_cases': np.random.poisson(5, days),
+            'malaria_cases': np.random.poisson(8, days),
+            'hiv_cases': np.random.poisson(3, days),
+            'tb_cases': np.random.poisson(2, days)
+        })
+        
+        return hospital_data
+    
+    def create_medication_inventory_data(self):
+        """Create realistic medication inventory data"""
+        
+        print("💊 Generating medication inventory data")
+        
+        medications = [
+            'Paracetamol', 'Amoxicillin', 'Chloroquine', 'Artemether',
+            'Efavirenz', 'Zidovudine', 'Isoniazid', 'Rifampin',
+            'Insulin', 'Metformin', 'Amlodipine', 'Enalapril',
+            'Salbutamol', 'Prednisolone', 'Diazepam'
+        ]
+        
+        inventory_data = []
+        
+        for med in medications:
+            # Generate 30 days of inventory data
+            for day in range(30):
+                date = datetime.now() - timedelta(days=30-day)
+                
+                inventory_data.append({
+                    'date': date.strftime('%Y-%m-%d'),
+                    'medication_name': med,
+                    'current_stock': np.random.randint(50, 500),
+                    'daily_usage': np.random.randint(5, 50),
+                    'reorder_level': np.random.randint(20, 100),
+                    'unit_cost': round(np.random.uniform(0.5, 25.0), 2),
+                    'expiry_date': (date + timedelta(days=np.random.randint(30, 365))).strftime('%Y-%m-%d')
+                })
+        
+        return pd.DataFrame(inventory_data)
+    
+    def save_to_database(self, data, table_name, db_path='hutano_data.db'):
+        """Save data to SQLite database"""
+        
+        print(f"💾 Saving data to database: {table_name}")
+        
+        conn = sqlite3.connect(db_path)
+        
+        if isinstance(data, dict):
+            # Handle WHO data format
+            for code, info in data.items():
+                df = info['data']
+                df.to_sql(f"who_{code}", conn, if_exists='replace', index=False)
+        else:
+            # Handle DataFrame
+            data.to_sql(table_name, conn, if_exists='replace', index=False)
+        
+        conn.close()
+        print(f"✅ Data saved successfully")
+    
+    def export_to_csv(self, data, filename):
+        """Export data to CSV for easy sharing"""
+        
+        print(f"📄 Exporting to CSV: {filename}")
+        
+        if isinstance(data, dict):
+            # Create a summary CSV for WHO data
+            summary_data = []
+            for code, info in data.items():
+                df = info['data']
+                if not df.empty:
+                    latest_value = df.iloc[-1] if len(df) > 0 else None
+                    summary_data.append({
+                        'indicator_code': code,
+                        'description': info['description'],
+                        'latest_year': latest_value.get('TimeDim', 'N/A') if latest_value else 'N/A',
+                        'latest_value': latest_value.get('NumericValue', 'N/A') if latest_value else 'N/A'
+                    })
+            
+            summary_df = pd.DataFrame(summary_data)
+            summary_df.to_csv(filename, index=False)
+        else:
+            data.to_csv(filename, index=False)
+        
+        print(f"✅ CSV exported successfully")
+
+def create_comprehensive_dataset():
+    """Create a comprehensive dataset for HUTANO system"""
+    
+    print("🚀 HUTANO Data Collection Tools")
+    print("=" * 60)
+    print("Creating comprehensive healthcare dataset for Zimbabwe")
+    
+    collector = HUTANODataCollector()
+    
+    # 1. Collect WHO data
+    print("\n1. Collecting WHO Global Health Observatory data...")
+    who_data = collector.get_zimbabwe_health_indicators()
+    
+    # 2. Generate hospital data for all major hospitals
+    print("\n2. Generating synthetic hospital data...")
+    hospitals = [
+        'Parirenyatwa Group of Hospitals',
+        'Sally Mugabe Central Hospital',
+        'Mpilo Central Hospital',
+        'Chitungwiza Central Hospital',
+        'United Bulawayo Hospitals',
+        'Gweru Provincial Hospital',
+        'Bindura Provincial Hospital',
+        'Karanda Mission Hospital'
+    ]
+    
+    all_hospital_data = []
+    for hospital in hospitals:
+        hospital_data = collector.create_synthetic_hospital_data(hospital)
+        all_hospital_data.append(hospital_data)
+    
+    combined_hospital_data = pd.concat(all_hospital_data, ignore_index=True)
+    
+    # 3. Generate medication inventory data
+    print("\n3. Generating medication inventory data...")
+    medication_data = collector.create_medication_inventory_data()
+    
+    # 4. Save all data
+    print("\n4. Saving data to database and CSV files...")
+    
+    # Save to database
+    collector.save_to_database(who_data, 'who_indicators')
+    collector.save_to_database(combined_hospital_data, 'hospital_admissions')
+    collector.save_to_database(medication_data, 'medication_inventory')
+    
+    # Export to CSV
+    collector.export_to_csv(who_data, 'zimbabwe_health_indicators.csv')
+    collector.export_to_csv(combined_hospital_data, 'hospital_admissions_data.csv')
+    collector.export_to_csv(medication_data, 'medication_inventory_data.csv')
+    
+    print("\n" + "=" * 60)
+    print("✅ COMPREHENSIVE DATASET CREATION COMPLETED")
+    print("=" * 60)
+    print("\nGenerated files:")
+    print("📊 Database: hutano_data.db")
+    print("📄 CSV Files:")
+    print("  - zimbabwe_health_indicators.csv")
+    print("  - hospital_admissions_data.csv") 
+    print("  - medication_inventory_data.csv")
+    
+    print(f"\nDataset Summary:")
+    print(f"🏥 Hospital records: {len(combined_hospital_data):,}")
+    print(f"💊 Medication records: {len(medication_data):,}")
+    print(f"🌍 WHO indicators: {len(who_data)}")
+    
+    return {
+        'who_data': who_data,
+        'hospital_data': combined_hospital_data,
+        'medication_data': medication_data
+    }
+
+if __name__ == "__main__":
+    import numpy as np
+    dataset = create_comprehensive_dataset()

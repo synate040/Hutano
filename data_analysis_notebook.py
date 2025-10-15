@@ -1,0 +1,317 @@
+#!/usr/bin/env python3
+"""
+HUTANO Data Analysis Notebook
+Comprehensive data preprocessing and validation for hospital resource forecasting
+
+This notebook demonstrates the data quality assessment and preprocessing steps
+used in the HUTANO Hospital Resource Forecasting System.
+"""
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime, timedelta
+import warnings
+warnings.filterwarnings('ignore')
+
+print("HUTANO Data Analysis Notebook")
+print("=" * 60)
+print("Hospital Resource Forecasting System - Data Preprocessing")
+print("=" * 60)
+
+# ============================================================================
+# 3.4.4.1 Checking Missing Values
+# ============================================================================
+
+def check_missing_values():
+    """
+    3.4.4.1 Missing Values Analysis
+    A preliminary check using the Pandas function df.isnull().sum() revealed 
+    the distribution of missing values across all datasets.
+    """
+    print("\n3.4.4.1 MISSING VALUES ANALYSIS")
+    print("-" * 50)
+    
+    # Load the datasets
+    try:
+        patient_data = pd.read_csv('datasets/hospital supply chain/patient_data.csv')
+        staff_data = pd.read_csv('datasets/hospital supply chain/staff_data.csv')
+        inventory_data = pd.read_csv('datasets/hospital supply chain/inventory_data.csv')
+        
+        datasets = {
+            'Patient Data': patient_data,
+            'Staff Data': staff_data,
+            'Inventory Data': inventory_data
+        }
+        
+        print("Missing values analysis using df.isnull().sum():")
+        print()
+        
+        for name, df in datasets.items():
+            print(f"{name}:")
+            missing_values = df.isnull().sum()
+            total_rows = len(df)
+            
+            print(f"  Total rows: {total_rows}")
+            print(f"  Missing values per column:")
+            
+            for column, missing_count in missing_values.items():
+                percentage = (missing_count / total_rows) * 100
+                print(f"    {column}: {missing_count} ({percentage:.2f}%)")
+            
+            total_missing = missing_values.sum()
+            total_cells = total_rows * len(df.columns)
+            overall_percentage = (total_missing / total_cells) * 100
+            
+            print(f"  Overall missing data: {total_missing}/{total_cells} ({overall_percentage:.2f}%)")
+            print()
+        
+        return datasets
+        
+    except FileNotFoundError:
+        print("Dataset files not found. Using sample data for demonstration.")
+        return create_sample_datasets()
+
+def create_sample_datasets():
+    """Create sample datasets for demonstration purposes"""
+    
+    # Sample patient data
+    dates = pd.date_range('2025-01-01', '2024-12-31', freq='D')
+    patient_data = pd.DataFrame({
+        'patient_id': range(1, 1001),
+        'admission_date': np.random.choice(dates, 1000),
+        'age': np.random.randint(18, 90, 1000),
+        'gender': np.random.choice(['Male', 'Female'], 1000),
+        'diagnosis': np.random.choice(['Malaria', 'Hypertension', 'Diabetes', 'Pneumonia', 'HIV/AIDS'], 1000),
+        'length_of_stay': np.random.randint(1, 14, 1000),
+        'is_emergency': np.random.choice([True, False], 1000)
+    })
+    
+    # Introduce some missing values for demonstration
+    patient_data.loc[np.random.choice(patient_data.index, 5), 'diagnosis'] = np.nan
+    
+    # Sample staff data
+    staff_data = pd.DataFrame({
+        'staff_id': range(1, 501),
+        'name': [f'Staff_{i}' for i in range(1, 501)],
+        'department': np.random.choice(['Emergency', 'Surgery', 'Pediatrics', 'Internal Medicine'], 500),
+        'role': np.random.choice(['Doctor', 'Nurse', 'Technician'], 500),
+        'shift_date': np.random.choice(dates, 500),
+        'hours_worked': np.random.randint(6, 12, 500)
+    })
+    
+    # Sample inventory data
+    inventory_data = pd.DataFrame({
+        'medication_id': range(1, 201),
+        'medication_name': [f'Medicine_{i}' for i in range(1, 201)],
+        'current_stock': np.random.randint(10, 1000, 200),
+        'reorder_level': np.random.randint(50, 200, 200),
+        'last_updated': np.random.choice(dates, 200),
+        'expiry_date': np.random.choice(dates + timedelta(days=365), 200)
+    })
+    
+    # Introduce missing values
+    inventory_data.loc[np.random.choice(inventory_data.index, 3), 'expiry_date'] = np.nan
+    
+    return {
+        'Patient Data': patient_data,
+        'Staff Data': staff_data,
+        'Inventory Data': inventory_data
+    }
+
+# ============================================================================
+# 3.4.4.2 Data Type Validation
+# ============================================================================
+
+def validate_data_types(datasets):
+    """
+    3.4.4.2 Data Type Validation
+    Verification of data types to ensure compatibility with analysis models.
+    """
+    print("\n3.4.4.2 DATA TYPE VALIDATION")
+    print("-" * 50)
+    
+    for name, df in datasets.items():
+        print(f"{name} Data Types:")
+        print(f"  Shape: {df.shape}")
+        print("  Column types:")
+        
+        for column, dtype in df.dtypes.items():
+            print(f"    {column}: {dtype}")
+        
+        # Memory usage
+        memory_usage = df.memory_usage(deep=True).sum() / 1024**2  # MB
+        print(f"  Memory usage: {memory_usage:.2f} MB")
+        print()
+
+# ============================================================================
+# 3.4.4.3 Statistical Summary
+# ============================================================================
+
+def generate_statistical_summary(datasets):
+    """
+    3.4.4.3 Statistical Summary
+    Comprehensive statistical analysis of numerical variables.
+    """
+    print("\n3.4.4.3 STATISTICAL SUMMARY")
+    print("-" * 50)
+    
+    for name, df in datasets.items():
+        print(f"{name} Statistical Summary:")
+        
+        # Numerical columns only
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) > 0:
+            print(df[numeric_cols].describe())
+        else:
+            print("  No numerical columns found.")
+        print()
+
+# ============================================================================
+# 3.4.4.4 Data Quality Assessment
+# ============================================================================
+
+def assess_data_quality(datasets):
+    """
+    3.4.4.4 Data Quality Assessment
+    Comprehensive quality metrics for each dataset.
+    """
+    print("\n3.4.4.4 DATA QUALITY ASSESSMENT")
+    print("-" * 50)
+    
+    quality_report = {}
+    
+    for name, df in datasets.items():
+        print(f"{name} Quality Metrics:")
+        
+        # Calculate quality metrics
+        total_cells = len(df) * len(df.columns)
+        missing_cells = df.isnull().sum().sum()
+        completeness = ((total_cells - missing_cells) / total_cells) * 100
+        
+        # Duplicate rows
+        duplicates = df.duplicated().sum()
+        uniqueness = ((len(df) - duplicates) / len(df)) * 100
+        
+        # Data consistency (for categorical columns)
+        categorical_cols = df.select_dtypes(include=['object']).columns
+        consistency_scores = []
+        
+        for col in categorical_cols:
+            if col in df.columns:
+                unique_values = df[col].nunique()
+                total_values = df[col].count()
+                if total_values > 0:
+                    consistency = (unique_values / total_values) * 100
+                    consistency_scores.append(min(consistency, 100))
+        
+        avg_consistency = np.mean(consistency_scores) if consistency_scores else 100
+        
+        # Overall quality score
+        quality_score = (completeness * 0.4 + uniqueness * 0.3 + avg_consistency * 0.3)
+        
+        quality_report[name] = {
+            'completeness': completeness,
+            'uniqueness': uniqueness,
+            'consistency': avg_consistency,
+            'overall_quality': quality_score
+        }
+        
+        print(f"  Completeness: {completeness:.2f}%")
+        print(f"  Uniqueness: {uniqueness:.2f}%")
+        print(f"  Consistency: {avg_consistency:.2f}%")
+        print(f"  Overall Quality Score: {quality_score:.2f}%")
+        print()
+    
+    return quality_report
+
+# ============================================================================
+# 3.4.4.5 Prophet Model Data Preparation
+# ============================================================================
+
+def prepare_prophet_data(datasets):
+    """
+    3.4.4.5 Prophet Model Data Preparation
+    Format data specifically for Facebook Prophet forecasting model.
+    """
+    print("\n3.4.4.5 PROPHET MODEL DATA PREPARATION")
+    print("-" * 50)
+    
+    patient_data = datasets['Patient Data']
+    
+    # Prepare daily admission counts for Prophet
+    if 'admission_date' in patient_data.columns:
+        # Convert to datetime if not already
+        patient_data['admission_date'] = pd.to_datetime(patient_data['admission_date'])
+        
+        # Create daily admission counts
+        daily_admissions = patient_data.groupby('admission_date').size().reset_index()
+        daily_admissions.columns = ['ds', 'y']  # Prophet requires 'ds' and 'y' columns
+        daily_admissions = daily_admissions.sort_values('ds')
+        
+        print("Prophet Data Validation:")
+        print(f"  Date range: {daily_admissions['ds'].min()} to {daily_admissions['ds'].max()}")
+        print(f"  Total observations: {len(daily_admissions)}")
+        print(f"  Missing values: {daily_admissions.isnull().sum().sum()}")
+        print(f"  Average daily admissions: {daily_admissions['y'].mean():.2f}")
+        print(f"  Standard deviation: {daily_admissions['y'].std():.2f}")
+        
+        # Check for Prophet requirements
+        print("\nProphet Requirements Check:")
+        print(f"  ✓ Has 'ds' column: {'ds' in daily_admissions.columns}")
+        print(f"  ✓ Has 'y' column: {'y' in daily_admissions.columns}")
+        print(f"  ✓ No missing values: {daily_admissions.isnull().sum().sum() == 0}")
+        print(f"  ✓ Chronologically ordered: {daily_admissions['ds'].is_monotonic_increasing}")
+        print(f"  ✓ Sufficient data points: {len(daily_admissions) >= 30}")
+        
+        return daily_admissions
+    else:
+        print("  Error: 'admission_date' column not found in patient data.")
+        return None
+
+# ============================================================================
+# Main Execution
+# ============================================================================
+
+def main():
+    """Main execution function"""
+    
+    # Step 1: Check missing values
+    datasets = check_missing_values()
+    
+    # Step 2: Validate data types
+    validate_data_types(datasets)
+    
+    # Step 3: Generate statistical summary
+    generate_statistical_summary(datasets)
+    
+    # Step 4: Assess data quality
+    quality_report = assess_data_quality(datasets)
+    
+    # Step 5: Prepare Prophet data
+    prophet_data = prepare_prophet_data(datasets)
+    
+    # Summary
+    print("\n" + "=" * 60)
+    print("DATA PREPROCESSING SUMMARY")
+    print("=" * 60)
+    
+    print("\nQuality Assessment Results:")
+    for dataset, metrics in quality_report.items():
+        print(f"{dataset}:")
+        print(f"  Overall Quality Score: {metrics['overall_quality']:.2f}%")
+    
+    if prophet_data is not None:
+        print(f"\nProphet Data Ready: {len(prophet_data)} observations")
+        print("✓ Data preprocessing completed successfully")
+    else:
+        print("\n⚠ Prophet data preparation failed")
+    
+    print("\nNext Steps:")
+    print("1. Proceed with Prophet model training")
+    print("2. Implement forecasting pipeline")
+    print("3. Validate prediction accuracy")
+
+if __name__ == "__main__":
+    main()
